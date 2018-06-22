@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from ast import literal_eval
+from collections import defaultdict
 import errno
 import logging
 from operator import itemgetter
@@ -14,8 +15,9 @@ import sys
 import time
 import warnings
 
+from conda.models.specs_group import SpecsGroup
 from .base.constants import DEFAULTS_CHANNEL_NAME
-from .common.compat import ensure_text_type, iteritems, open, text_type
+from .common.compat import ensure_text_type, iteritems, open, text_type, itervalues
 from .core.prefix_data import PrefixData
 from .exceptions import CondaFileIOError, CondaHistoryError
 from .gateways.disk.update import touch
@@ -179,22 +181,21 @@ class History(object):
             item['link_dists'] = dists.get('+', ())
         return res
 
-    def get_requested_specs_map(self):
-        # keys are package names and values are specs
-        spec_map = {}
+    def get_requested_specs(self):
+        specs_group = SpecsGroup()
+
         for request in self.get_user_requests():
-            remove_specs = (MatchSpec(spec) for spec in request.get('remove_specs', ()))
-            for spec in remove_specs:
-                spec_map.pop(spec.name, None)
-            update_specs = (MatchSpec(spec) for spec in request.get('update_specs', ()))
-            spec_map.update(((s.name, s) for s in update_specs))
+            for spec_str in request.get('remove_specs', ()):
+                specs_group.remove(MatchSpec(spec_str))
+
+            for spec_str in request.get('update_specs', ()):
+                specs_group.add(MatchSpec(spec_str))
 
         # Conda hasn't always been good about recording when specs have been removed from
         # environments.  If the package isn't installed in the current environment, then we
         # shouldn't try to force it here.
-        prefix_recs = tuple(PrefixData(self.prefix).iter_records())
-        return dict((name, spec) for name, spec in iteritems(spec_map)
-                    if any(spec.match(dist) for dist in prefix_recs))
+        specs_group.drop_specs_not_matching_records(PrefixData(self.prefix).iter_records())
+        return specs_group
 
     def construct_states(self):
         """
@@ -311,4 +312,4 @@ if __name__ == '__main__':
     # Don't use in context manager mode---it augments the history every time
     h = History(sys.prefix)
     pprint(h.get_user_requests())
-    print(h.get_requested_specs_map())
+    print(h.get_requested_specs())
