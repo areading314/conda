@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from ast import literal_eval
-from collections import defaultdict
 import errno
 import logging
 from operator import itemgetter
@@ -15,13 +14,13 @@ import sys
 import time
 import warnings
 
-from conda.models.specs_group import SpecsGroup
 from .base.constants import DEFAULTS_CHANNEL_NAME
-from .common.compat import ensure_text_type, iteritems, open, text_type, itervalues
+from .common.compat import ensure_text_type, open, text_type
 from .core.prefix_data import PrefixData
 from .exceptions import CondaFileIOError, CondaHistoryError
 from .gateways.disk.update import touch
 from .models.dist import dist_str_to_quad
+from .models.specs_group import SpecsGroup
 from .resolve import MatchSpec
 
 try:
