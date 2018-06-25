@@ -190,6 +190,23 @@ def main():
         'conda',
         'cytoolz',
 
+        'mkl_fft',
+        'mkl_random',
+        'kiwisolver',
+        'numpydoc',
+        'blas',
+        'libuuid',
+        'numpy-base',
+        'backcall',
+        'sphinx',
+        'alabaster',
+        'sphinxcontrib-websupport',
+        'imagesize',
+        'typing',
+        'babel',
+        'snowballstemmer',
+        'sphinxcontrib',
+
     )
 
     keep = {}
