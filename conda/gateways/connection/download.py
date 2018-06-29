@@ -21,6 +21,10 @@ from ...common.io import time_recorder
 from ...exceptions import (BasicClobberError, CondaDependencyError, CondaHTTPError,
                            MD5MismatchError, maybe_raise)
 
+
+MAX_RETRIES = 3
+"""Number times to attempt retry download when connection reset by peer"""
+
 log = getLogger(__name__)
 
 
@@ -49,45 +53,49 @@ def download(url, target_full_path, md5sum, progress_update_callback=None):
 
         content_length = int(resp.headers.get('Content-Length', 0))
 
-        digest_builder = hashlib.new('md5')
-        try:
-            with open(target_full_path, 'wb') as fh:
-                streamed_bytes = 0
-                for chunk in resp.iter_content(2 ** 14):
-                    # chunk could be the decompressed form of the real data
-                    # but we want the exact number of bytes read till now
-                    streamed_bytes = resp.raw.tell()
-                    try:
-                        fh.write(chunk)
-                    except IOError as e:
-                        message = "Failed to write to %(target_path)s\n  errno: %(errno)d"
-                        # TODO: make this CondaIOError
-                        raise CondaError(message, target_path=target_full_path, errno=e.errno)
+        num_retries = 0
+        while num_retries < MAX_RETRIES:
+            digest_builder = hashlib.new('md5')
+            try:
+                with open(target_full_path, 'wb') as fh:
+                    streamed_bytes = 0
+                    for chunk in resp.iter_content(2 ** 14):
+                        # chunk could be the decompressed form of the real data
+                        # but we want the exact number of bytes read till now
+                        streamed_bytes = resp.raw.tell()
+                        try:
+                            fh.write(chunk)
+                        except IOError as e:
+                            message = "Failed to write to %(target_path)s\n  errno: %(errno)d"
+                            # TODO: make this CondaIOError
+                            raise CondaError(message, target_path=target_full_path, errno=e.errno)
 
-                    digest_builder.update(chunk)
+                        digest_builder.update(chunk)
 
-                    if content_length and 0 <= streamed_bytes <= content_length:
-                        if progress_update_callback:
-                            progress_update_callback(streamed_bytes / content_length)
+                        if content_length and 0 <= streamed_bytes <= content_length:
+                            if progress_update_callback:
+                                progress_update_callback(streamed_bytes / content_length)
 
-            if content_length and streamed_bytes != content_length:
-                # TODO: needs to be a more-specific error type
-                message = dals("""
-                Downloaded bytes did not match Content-Length
-                  url: %(url)s
-                  target_path: %(target_path)s
-                  Content-Length: %(content_length)d
-                  downloaded bytes: %(downloaded_bytes)d
-                """)
-                raise CondaError(message, url=url, target_path=target_full_path,
-                                 content_length=content_length,
-                                 downloaded_bytes=streamed_bytes)
-
-        except (IOError, OSError) as e:
-            if e.errno == 104:
-                # Connection reset by peer
-                log.debug("%s, trying again" % e)
-            raise
+                if content_length and streamed_bytes != content_length:
+                    # TODO: needs to be a more-specific error type
+                    message = dals("""
+                    Downloaded bytes did not match Content-Length
+                      url: %(url)s
+                      target_path: %(target_path)s
+                      Content-Length: %(content_length)d
+                      downloaded bytes: %(downloaded_bytes)d
+                    """)
+                    raise CondaError(message, url=url, target_path=target_full_path,
+                                     content_length=content_length,
+                                     downloaded_bytes=streamed_bytes)
+                break
+            except (IOError, OSError) as e:
+                num_retries += 1
+                if e.errno == 104:
+                    # Connection reset by peer
+                    log.debug("%s, trying again" % e)
+                else:
+                    raise
 
         actual_md5sum = digest_builder.hexdigest()
         if md5sum and actual_md5sum != md5sum:
