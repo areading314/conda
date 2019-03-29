@@ -245,7 +245,7 @@ class PathActionsTests(TestCase):
         path_type = PathType.hardlink
 
         source_path_data = PathDataV1(
-            _path = source_short_path,
+            _path=source_short_path,
             path_type=path_type,
             sha256=correct_sha256,
             size_in_bytes=correct_size_in_bytes,
@@ -276,7 +276,7 @@ class PathActionsTests(TestCase):
         path_type = PathType.hardlink
 
         source_path_data = PathDataV1(
-            _path = source_short_path,
+            _path=source_short_path,
             path_type=path_type,
             sha256=correct_sha256,
             size_in_bytes=correct_size_in_bytes,
@@ -319,7 +319,7 @@ class PathActionsTests(TestCase):
         path_type = PathType.hardlink
 
         source_path_data = PathDataV1(
-            _path = source_short_path,
+            _path=source_short_path,
             path_type=path_type,
             sha256=correct_sha256,
             size_in_bytes=correct_size_in_bytes,
