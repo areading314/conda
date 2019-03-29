@@ -292,7 +292,7 @@ class InitializeTests(TestCase):
                 assert ep_contents == dals("""
                 # -*- coding: utf-8 -*-
                 import sys
-    
+
                 if __name__ == '__main__':
                     from conda.entry.point import run
                     sys.exit(run())
@@ -302,7 +302,7 @@ class InitializeTests(TestCase):
                 #!%s/bin/python
                 # -*- coding: utf-8 -*-
                 import sys
-    
+
                 if __name__ == '__main__':
                     from conda.entry.point import run
                     sys.exit(run())
@@ -629,19 +629,19 @@ class InitializeTests(TestCase):
             export PATH="/some/other/conda/bin:$PATH"
             export PATH="%(prefix)s/bin:$PATH"
               export PATH="%(prefix)s/bin:$PATH"
-              
+
             # >>> conda initialize >>>
             __conda_setup="$('%(prefix)s/bin/conda' shell.bash hook 2> /dev/null)"
             if [ $? -eq 0 ]; then
             fi
             unset __conda_setup
             # <<< conda initialize <<<
-            
+
             . etc/profile.d/conda.sh
             . etc/profile.d/coda.sh
             . /somewhere/etc/profile.d/conda.sh
             source /etc/profile.d/conda.sh
-            
+
             \t source %(prefix)s/etc/profile.d/conda.sh
             """) % {
                 'prefix': win_path_backout(abspath(conda_temp_prefix)),
@@ -659,7 +659,7 @@ class InitializeTests(TestCase):
             export PATH="/some/other/conda/bin:$PATH"
             # export PATH="%(prefix)s/bin:$PATH"  # commented out by conda initialize
             # export PATH="%(prefix)s/bin:$PATH"  # commented out by conda initialize
-            
+
             # >>> conda initialize >>>
             # !! Contents within this block are managed by 'conda init' !!
             __conda_setup="$('%(prefix)s/bin/conda' shell.bash hook 2> /dev/null)"
@@ -674,12 +674,12 @@ class InitializeTests(TestCase):
             fi
             unset __conda_setup
             # <<< conda initialize <<<
-            
+
             # . etc/profile.d/conda.sh  # commented out by conda initialize
             . etc/profile.d/coda.sh
             # . /somewhere/etc/profile.d/conda.sh  # commented out by conda initialize
             # source /etc/profile.d/conda.sh  # commented out by conda initialize
-            
+
             # source %(prefix)s/etc/profile.d/conda.sh  # commented out by conda initialize
             """) % {
                 'prefix': win_path_backout(abspath(conda_temp_prefix)),
