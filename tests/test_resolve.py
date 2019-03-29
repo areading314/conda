@@ -733,7 +733,7 @@ def test_install_package_with_feature():
     r = Resolve(index2)
 
     # It should not raise
-    r.install(['mypackage','feature 1.0'])
+    r.install(['mypackage', 'feature 1.0'])
 
 
 def test_unintentional_feature_downgrade():
@@ -746,10 +746,10 @@ def test_unintentional_feature_downgrade():
     bad_deps = tuple(d for d in good_rec.depends
                      if not d.startswith('numpy'))
     bad_rec = PackageRecord.from_objects(good_rec,
-                                         build=good_rec.build.replace('_3','_x0'),
+                                         build=good_rec.build.replace('_3', '_x0'),
                                          build_number=0, depends=bad_deps,
-                                         fn=good_rec.fn.replace('_3','_x0'),
-                                         url=good_rec.url.replace('_3','_x0'))
+                                         fn=good_rec.fn.replace('_3', '_x0'),
+                                         url=good_rec.url.replace('_3', '_x0'))
     index2 = index.copy()
     index2[bad_rec] = bad_rec
     r = Resolve(index2)
@@ -1009,8 +1009,8 @@ def test_multiple_solution():
     index2 = index.copy()
     fn = 'pandas-0.11.0-np16py27_1.tar.bz2'
     res1 = set([fn])
-    for k in range(1,15):
-        fn2 = Dist('%s_%d.tar.bz2'%(fn[:-8],k))
+    for k in range(1, 15):
+        fn2 = Dist('%s_%d.tar.bz2'%(fn[:-8], k))
         index2[fn2] = index[Dist(add_defaults_if_no_channel(fn))]
         res1.add(fn2)
     index2 = {Dist(key): value for key, value in iteritems(index2)}
@@ -1422,7 +1422,7 @@ def test_channel_priority_2():
 
 
 def test_dependency_sort():
-    specs = ['pandas','python 2.7*','numpy 1.6*']
+    specs = ['pandas', 'python 2.7*', 'numpy 1.6*']
     installed = r.install(specs)
     must_have = {prec.name: prec for prec in installed}
     installed = r.dependency_sort(must_have)
