@@ -22,4 +22,3 @@
 # source: https://github.com/pytoolz/toolz
 # updated: 2017-05-30
 __version__ = '0.8.2'
-
