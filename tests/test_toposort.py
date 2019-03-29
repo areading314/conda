@@ -6,24 +6,24 @@ from conda.common.toposort import pop_key, toposort
 class TopoSortTests(unittest.TestCase):
 
     def test_pop_key(self):
-        key = pop_key({'a':{'b', 'c'}, 'b':{'c'}})
+        key = pop_key({'a': {'b', 'c'}, 'b': {'c'}})
         self.assertEqual(key, 'b')
 
-        key = pop_key({'a':{'b'}, 'b':{'c', 'a'}})
+        key = pop_key({'a': {'b'}, 'b': {'c', 'a'}})
         self.assertEqual(key, 'a')
 
-        key = pop_key({'a':{'b'}, 'b':{'a'}})
+        key = pop_key({'a': {'b'}, 'b': {'a'}})
         self.assertEqual(key, 'a')
 
     def test_simple(self):
-        data = {'a':'bc', 'b':'c'}
+        data = {'a': 'bc', 'b': 'c'}
         results = toposort(data, safe=True)
         self.assertEqual(results, ['c', 'b', 'a'])
         results = toposort(data, safe=False)
         self.assertEqual(results, ['c', 'b', 'a'])
 
     def test_cycle(self):
-        data = {'a':'b', 'b':'a'}
+        data = {'a': 'b', 'b': 'a'}
 
         with self.assertRaises(ValueError):
             toposort(data, False)
@@ -33,7 +33,7 @@ class TopoSortTests(unittest.TestCase):
         self.assertEqual(set(results), {'b', 'a'})
 
     def test_cycle_best_effort(self):
-        data = {'a':'bc', 'b':'c', '1':'2', '2':'1'}
+        data = {'a': 'bc', 'b': 'c', '1': '2', '2': '1'}
 
         results = toposort(data)
         self.assertEqual(results[:3], ['c', 'b', 'a'])
